@@ -4,9 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtual dom</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+    />
   </head>
   <body>
-    <div id="app"></div>
+    <div class="columns is-centered m-5">
+      <div class="column">
+        <button class="button is-primary" id="toggle_btn">Toggle</button>
+      </div>
+    </div>
+
+    <div class="columns is-centered m-5">
+      <div class="column is-half">
+        <div id="app"></div>
+      </div>
+    </div>
 
     <script src="./build/main.js"></script>
   </body>

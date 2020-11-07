@@ -27,10 +27,8 @@ function elementObj(node: IElement | string): INode {
 export function virtualElement(
   tagName: string,
   attributes: any,
-  ...children: any[]
+  ...children: (IElement | string)[]
 ): any {
-  console.log({ tagName, attributes, children });
-
   return {
     elementType: ElementType.ElementNode,
     props: attributes,
