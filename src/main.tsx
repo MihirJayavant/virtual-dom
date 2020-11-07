@@ -1,30 +1,30 @@
-import { virtualElement } from "./core/Element";
 import { updateElement } from "./core/Renderer";
-import { Card } from "./components/Card";
-import { List } from "./components/List";
-
-const card = Card();
-const list = List();
-
-console.log(card);
-console.log(list);
+import { Columns } from "./components/Columns";
 
 const app = document.getElementById("app")!;
-const btn = document.getElementById("toggle_btn")!;
+const btn = document.getElementById("add_btn")!;
 
 let toggle = false;
+const arr: number[] = [1];
+let list = Columns({ list: arr });
 
-updateElement(app, card, undefined);
+const arrProxy = new Proxy(arr, {
+  get: function (target, key, context) {
+    if (key === "push") {
+      return (value: number) => {
+        target.push(value);
+        const list2 = Columns({ list: target });
+        updateElement(app, list2, list);
+        list = list2;
+        return value;
+      };
+    }
+    return target[key];
+  },
+});
+
+updateElement(app, list, undefined);
 
 btn.addEventListener("click", () => {
-  toggle = !toggle;
-
-  console.log(card);
-  console.log(list);
-
-  if (toggle) {
-    updateElement(app, list, card);
-  } else {
-    updateElement(app, card, list);
-  }
+  arrProxy.push(1);
 });

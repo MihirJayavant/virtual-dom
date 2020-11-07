@@ -18,7 +18,7 @@ export interface IElement {
 }
 
 function elementObj(node: IElement | string): INode {
-  if (typeof node === "string") {
+  if (typeof node === "string" || typeof node === "number") {
     return { elementType: ElementType.TextNode, value: node };
   }
   return node;
@@ -29,10 +29,20 @@ export function virtualElement(
   attributes: any,
   ...children: (IElement | string)[]
 ): any {
+  const childList: (IElement | string)[] = [];
+
+  for (const child of children) {
+    if (Array.isArray(child)) {
+      childList.push(...child);
+    } else {
+      childList.push(child);
+    }
+  }
+
   return {
     elementType: ElementType.ElementNode,
     props: attributes,
-    children: children.map(elementObj),
+    children: childList.map(elementObj),
     type: tagName,
   };
 }
