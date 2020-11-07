@@ -1,0 +1,23 @@
+{
+  "name": "virtual-dom",
+  "version": "1.0.0",
+  "description": "Virtual dom",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel serve src/index.html -p 3005",
+    "start:tsc": "tsc -p tsconfig.json --watch"
+  },
+  "keywords": [
+    "virtual-dom"
+  ],
+  "author": "Mihir jayavant",
+  "license": "MIT",
+  "browserslist": [
+    "since 2017"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.0.5",
+    "parcel-bundler": "^1.12.4"
+  }
+}

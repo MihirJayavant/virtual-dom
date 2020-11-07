@@ -1,0 +1,18 @@
+{
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "strict": true,
+    "noImplicitAny": false,
+    "module": "ES2015",
+    "target": "ES2017",
+    "lib": ["ES2020", "DOM"],
+    "jsx": "react",
+    "jsxFactory": "virtualElement",
+    "outDir": "src/build"
+  },
+  "include": ["src/**/*"]
+}
