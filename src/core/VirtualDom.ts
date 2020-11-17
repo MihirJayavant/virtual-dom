@@ -11,18 +11,8 @@ export interface IRenderNode {
   replaceChild: (newNode: IRenderNode) => void
 }
 
+
 export function createElement(node: INode) {
-  if (node.elementType == ElementType.TextNode) {
-    return document.createTextNode(node.value);
-  }
-
-  const $el = document.createElement(node.type);
-  setProps($el, node.props);
-  node.children.map(createElement).forEach($el.appendChild.bind($el));
-  return $el;
-}
-
-export function createElement2(node: INode) {
   if (node.elementType == ElementType.TextNode) {
     return document.createTextNode(node.value);
   }
@@ -36,7 +26,7 @@ export function createElement2(node: INode) {
     const result = stack.pop()!
     const tempNode = result.node
 
-    console.log(stack.length, result)
+    // console.log(stack.length, result)
 
     for (const child of tempNode.children) {
       if (child.elementType === ElementType.TextNode) {
@@ -147,76 +137,55 @@ function changed(node1: INode, node2: INode): boolean {
   }
 }
 
-export function updateElement2(
-  $parent: ChildNode,
-  newNode: INode,
-  oldNode?: INode,
-  index = 0
-) {
-  if (!oldNode) {
-    $parent.appendChild(createElement2(newNode));
-  } else if (!newNode) {
-    $parent.removeChild($parent.childNodes[index]);
-  } else if (changed(newNode, oldNode)) {
-    $parent.replaceChild(createElement2(newNode), $parent.childNodes[index]);
-  } else if (isElement(newNode) && isElement(oldNode)) {
-    updateProps(
-      $parent.childNodes[index] as HTMLElement,
-      newNode.props,
-      oldNode.props
-    );
-    const newLength = newNode.children.length;
-    const oldLength = oldNode.children.length;
-    for (let i = 0; i < newLength || i < oldLength; i++) {
-      updateElement2(
-        $parent.childNodes[index],
-        newNode.children[i],
-        oldNode.children[i],
-        i
-      );
-    }
-  }
+export interface IUpdateElementStack {
+  parent: ChildNode
+  newNode: INode
+  oldNode?: INode
+  index: number
 }
 
-export function updateElement(
-  $parent: ChildNode,
-  newNode: INode,
-  oldNode?: INode,
-  index = 0
-) {
-  if (!oldNode) {
-    $parent.appendChild(createElement(newNode));
-  } else if (!newNode) {
-    $parent.removeChild($parent.childNodes[index]);
-  } else if (changed(newNode, oldNode)) {
-    $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
-  } else if (isElement(newNode) && isElement(oldNode)) {
-    updateProps(
-      $parent.childNodes[index] as HTMLElement,
-      newNode.props,
-      oldNode.props
-    );
-    const newLength = newNode.children.length;
-    const oldLength = oldNode.children.length;
-    for (let i = 0; i < newLength || i < oldLength; i++) {
-      updateElement(
-        $parent.childNodes[index],
-        newNode.children[i],
-        oldNode.children[i],
-        i
+export function updateElement(context: IUpdateElementStack) {
+  const stack = new Stack<IUpdateElementStack>()
+  stack.push(context)
+  do {
+    const { oldNode, newNode, parent, index } = stack.pop()!
+    if (!oldNode) {
+      parent.appendChild(createElement(newNode));
+    } else if (!newNode) {
+      parent.removeChild(parent.childNodes[index]);
+    } else if (changed(newNode, oldNode)) {
+      parent.replaceChild(createElement(newNode), parent.childNodes[index]);
+    } else if (isElement(newNode) && isElement(oldNode)) {
+      updateProps(
+        parent.childNodes[index] as HTMLElement,
+        newNode.props,
+        oldNode.props
       );
+      const newLength = newNode.children.length;
+      const oldLength = oldNode.children.length;
+      for (let i = 0; i < newLength || i < oldLength; i++) {
+        stack.push({
+          parent: parent.childNodes[index],
+          newNode: newNode.children[i],
+          oldNode: oldNode.children[i],
+          index: i
+        })
+      }
     }
-  }
+
+  } while (stack.length > 0)
+
 }
+
 
 export function updateElementAsync(
-  $parent: ChildNode,
+  parent: ChildNode,
   newNode: INode,
   oldNode?: INode,
   index = 0
 ) {
   return new Promise<any>((res, err) => {
-    updateElement($parent, newNode, oldNode, index);
+    updateElement({ parent, newNode, oldNode, index });
   });
 }
 

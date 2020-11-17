@@ -39,6 +39,10 @@ export function virtualElement(
     }
   }
 
+  if (typeof tagName === 'function') {
+    return (tagName as any)()
+  }
+
   return {
     elementType: ElementType.ElementNode,
     props: attributes,
