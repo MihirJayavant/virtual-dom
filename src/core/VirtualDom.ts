@@ -28,6 +28,7 @@ export function createElement2(node: INode) {
   }
   const stack = new Stack<{ node: IElement, el: HTMLElement }>()
   const root = document.createElement(node.type)
+  setProps(root, node.props);
   stack.push({
     node, el: root
   })
@@ -35,19 +36,22 @@ export function createElement2(node: INode) {
     const result = stack.pop()!
     const tempNode = result.node
 
+    console.log(stack.length, result)
+
     for (const child of tempNode.children) {
       if (child.elementType === ElementType.TextNode) {
         result.el.appendChild(document.createTextNode(child.value))
       } else {
         const $el = document.createElement(child.type);
-        setProps($el, tempNode.props);
+        setProps($el, child.props);
+        result.el.appendChild($el)
         stack.push({
-          node: tempNode, el: $el
+          node: child, el: $el
         })
       }
     }
   } while (stack.length > 0)
-
+  console.log({ root })
   return root
 
 }
@@ -150,11 +154,11 @@ export function updateElement2(
   index = 0
 ) {
   if (!oldNode) {
-    $parent.appendChild(createElement(newNode));
+    $parent.appendChild(createElement2(newNode));
   } else if (!newNode) {
     $parent.removeChild($parent.childNodes[index]);
   } else if (changed(newNode, oldNode)) {
-    $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
+    $parent.replaceChild(createElement2(newNode), $parent.childNodes[index]);
   } else if (isElement(newNode) && isElement(oldNode)) {
     updateProps(
       $parent.childNodes[index] as HTMLElement,
@@ -164,7 +168,7 @@ export function updateElement2(
     const newLength = newNode.children.length;
     const oldLength = oldNode.children.length;
     for (let i = 0; i < newLength || i < oldLength; i++) {
-      updateElement(
+      updateElement2(
         $parent.childNodes[index],
         newNode.children[i],
         oldNode.children[i],

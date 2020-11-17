@@ -1,4 +1,4 @@
-import { updateElement, updateElement2 } from "./core/VirtualDom";
+import { updateElement2 } from "./core/VirtualDom";
 import { Columns } from "./components/Columns";
 
 const app = document.getElementById("app")!;
