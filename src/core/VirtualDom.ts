@@ -1,4 +1,15 @@
 import { INode, IElement, ElementType, ITextElement } from "./Element";
+import { Stack } from "./Stack";
+
+export interface IRenderNode {
+  createTextNode: (text: string) => void
+  createElement: (node: IElement) => IRenderNode
+  setAttribute: (name: string, value: string) => void
+  removeAttribute: (name: string) => void,
+  appendChild: (node: IRenderNode) => void,
+  removeChild: (oldNode: IRenderNode) => void,
+  replaceChild: (newNode: IRenderNode) => void
+}
 
 export function createElement(node: INode) {
   if (node.elementType == ElementType.TextNode) {
@@ -9,6 +20,36 @@ export function createElement(node: INode) {
   setProps($el, node.props);
   node.children.map(createElement).forEach($el.appendChild.bind($el));
   return $el;
+}
+
+export function createElement2(node: INode) {
+  if (node.elementType == ElementType.TextNode) {
+    return document.createTextNode(node.value);
+  }
+  const stack = new Stack<{ node: IElement, el: HTMLElement }>()
+  const root = document.createElement(node.type)
+  stack.push({
+    node, el: root
+  })
+  do {
+    const result = stack.pop()!
+    const tempNode = result.node
+
+    for (const child of tempNode.children) {
+      if (child.elementType === ElementType.TextNode) {
+        result.el.appendChild(document.createTextNode(child.value))
+      } else {
+        const $el = document.createElement(child.type);
+        setProps($el, tempNode.props);
+        stack.push({
+          node: tempNode, el: $el
+        })
+      }
+    }
+  } while (stack.length > 0)
+
+  return root
+
 }
 
 function isCustomProp(name: string) {
@@ -102,6 +143,37 @@ function changed(node1: INode, node2: INode): boolean {
   }
 }
 
+export function updateElement2(
+  $parent: ChildNode,
+  newNode: INode,
+  oldNode?: INode,
+  index = 0
+) {
+  if (!oldNode) {
+    $parent.appendChild(createElement(newNode));
+  } else if (!newNode) {
+    $parent.removeChild($parent.childNodes[index]);
+  } else if (changed(newNode, oldNode)) {
+    $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
+  } else if (isElement(newNode) && isElement(oldNode)) {
+    updateProps(
+      $parent.childNodes[index] as HTMLElement,
+      newNode.props,
+      oldNode.props
+    );
+    const newLength = newNode.children.length;
+    const oldLength = oldNode.children.length;
+    for (let i = 0; i < newLength || i < oldLength; i++) {
+      updateElement(
+        $parent.childNodes[index],
+        newNode.children[i],
+        oldNode.children[i],
+        i
+      );
+    }
+  }
+}
+
 export function updateElement(
   $parent: ChildNode,
   newNode: INode,
@@ -133,19 +205,19 @@ export function updateElement(
   }
 }
 
-// export function updateElementAsync(
-//   $parent: ChildNode,
-//   newNode: INode,
-//   oldNode?: INode,
-//   index = 0
-// ) {
-//   return new Promise<any>((res, err) => {
-//     updateElement($parent, newNode, oldNode, index);
-//   });
-// }
+export function updateElementAsync(
+  $parent: ChildNode,
+  newNode: INode,
+  oldNode?: INode,
+  index = 0
+) {
+  return new Promise<any>((res, err) => {
+    updateElement($parent, newNode, oldNode, index);
+  });
+}
 
-// export function createElementAsync(node: INode) {
-//   return new Promise<HTMLElement | Text>((res, err) => {
-//     res(createElement(node));
-//   });
-// }
+export function createElementAsync(node: INode) {
+  return new Promise<HTMLElement | Text>((res, err) => {
+    res(createElement(node));
+  });
+}

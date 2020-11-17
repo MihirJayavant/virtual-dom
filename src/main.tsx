@@ -1,4 +1,4 @@
-import { updateElement } from "./core/Renderer";
+import { updateElement, updateElement2 } from "./core/VirtualDom";
 import { Columns } from "./components/Columns";
 
 const app = document.getElementById("app")!;
@@ -14,7 +14,7 @@ const arrProxy = new Proxy(arr, {
       return (value: number) => {
         target.push(value);
         const list2 = Columns({ list: target });
-        updateElement(app, list2, list);
+        updateElement2(app, list2, list);
         list = list2;
         return value;
       };
@@ -23,7 +23,7 @@ const arrProxy = new Proxy(arr, {
   },
 });
 
-updateElement(app, list, undefined);
+updateElement2(app, list, undefined);
 
 btn.addEventListener("click", () => {
   arrProxy.push(1);
