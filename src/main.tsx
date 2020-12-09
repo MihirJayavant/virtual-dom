@@ -3,6 +3,8 @@ import { Columns } from "./components/Columns";
 import { Card } from "./components/Card";
 import { List } from "./components/List";
 import { virtualElement } from "./core/Element";
+import { Profile } from "./components/Profile";
+import { defineWebComponent } from "./core/WebComponent";
 
 const app = document.getElementById("app")!;
 const btn = document.getElementById("add_btn")!;
@@ -51,3 +53,14 @@ btn2?.addEventListener("click", () => {
     updateElement({ parent: app2, newNode: panel, oldNode: card, index: 0 });
   else updateElement({ parent: app2, newNode: card, oldNode: panel, index: 0 });
 });
+
+
+//web component
+
+defineWebComponent('app-profile', Profile)
+
+const app3 = document.getElementById("app3") as ChildNode;
+
+const custom = <app-profile name="aman" age="24" ></app-profile>
+
+updateElement({ parent: app3, newNode: custom, index: 0 });

@@ -26,8 +26,6 @@ export function createElement(node: INode) {
     const result = stack.pop()!
     const tempNode = result.node
 
-    // console.log(stack.length, result)
-
     for (const child of tempNode.children) {
       if (child.elementType === ElementType.TextNode) {
         result.el.appendChild(document.createTextNode(child.value))
@@ -41,7 +39,7 @@ export function createElement(node: INode) {
       }
     }
   } while (stack.length > 0)
-  console.log({ root })
+
   return root
 
 }
